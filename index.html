@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>শুভ দীপাবলি</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a002c 0%, #05000a 100%);
+            overflow: hidden; font-family: 'Segoe UI', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            user-select: none; cursor: pointer;
+        }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
+        #trigger-box {
+            z-index: 10; text-align: center; color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+        .cracker-icon { font-size: 80px; filter: drop-shadow(0 0 20px #ff9900); }
+        .click-text {
+            font-size: 22px; color: #ffd700; margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1); padding: 10px 25px;
+            border-radius: 30px; border: 1px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        #wish-box {
+            z-index: 10; text-align: center; display: none;
+            pointer-events: none;
+        }
+        .title-bn {
+            font-size: 60px; font-weight: bold; color: #ffd700;
+            text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300, 0 0 60px #ff0000;
+            margin: 0; animation: popIn 1s ease-out forwards;
+        }
+        .title-en {
+            font-size: 36px; color: #fff; margin-top: 10px;
+            text-shadow: 0 0 15px #ffd700;
+            animation: popIn 1.4s ease-out forwards;
+        }
+        .sub-text {
+            font-size: 18px; color: #ffeb99; margin-top: 15px;
+            animation: popIn 1.8s ease-out forwards;
+        }
+        .diya { font-size: 55px; margin-top: 20px; animation: float 2s infinite ease-in-out; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.2); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="fireworks"></canvas>
+
+    <!-- শুরুর স্ক্রিন -->
+    <div id="trigger-box" onclick="startCelebration(event)">
+        <div class="cracker-icon">🧨</div>
+        <div class="click-text">বাজি ফাটাতে এখানে ক্লিক করুন! ✨</div>
+    </div>
+
+    <!-- ক্লিক করার পরের শুভেচ্ছা স্ক্রিন -->
+    <div id="wish-box">
+        <h1 class="title-bn">শুভ দীপাবলি</h1>
+        <h2 class="title-en">Happy Diwali</h2>
+        <p class="sub-text">আলোর উৎসবে ভরে উঠুক আপনার জীবন ও চারপাশ!</p>
+        <div class="diya">🪔✨🪔</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        let celebrationStarted = false;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        function createFirework(x, y) {
+            const colors = ['#ff0040', '#ffdd00', '#00ffcc', '#ff6600', '#cc00ff', '#00ff40', '#ffffff'];
+            for (let i = 0; i < 90; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 7 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    size: Math.random() * 3 + 1.5,
+                    gravity: 0.06
+                });
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 0, 20, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.alpha -= 0.012;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            if (celebrationStarted && Math.random() < 0.06) {
+                createFirework(
+                    Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
+                    Math.random() * canvas.height * 0.6 + canvas.height * 0.1
+                );
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function startCelebration(e) {
+            if (!celebrationStarted) {
+                celebrationStarted = true;
+                document.getElementById('trigger-box').style.display = 'none';
+                document.getElementById('wish-box').style.display = 'block';
+                
+                // প্রথম বড় বিস্ফোরণ
+                createFirework(canvas.width / 2, canvas.height / 2);
+                setTimeout(() => createFirework(canvas.width * 0.3, canvas.height * 0.4), 300);
+                setTimeout(() => createFirework(canvas.width * 0.7, canvas.height * 0.4), 600);
+            }
+        }
+
+        // স্ক্রিনের যেকোনো জায়গায় ক্লিক করলে আরও বাজি ফাটবে
+        window.addEventListener('click', (e) => {
+            if (celebrationStarted) {
+                createFirework(e.clientX, e.clientY);
+            }
+        });
+
+        animate();
+    </script>
+</body>
+</html>
